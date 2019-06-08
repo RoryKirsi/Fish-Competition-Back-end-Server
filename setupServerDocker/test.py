@@ -9,12 +9,15 @@ import ssl
 import time
 from email.message import EmailMessage
 
+#Initialing the Authentication of Firebase 
 def initialAuth():
     cred = credentials.Certificate("fishingtest-8c959-firebase-adminsdk-4uunj-fa9c0e110a.json")
     default_app = firebase_admin.initialize_app(cred, {'databaseURL' : 'https://fishingtest-8c959.firebaseio.com'})
     print(default_app.name)
     print(default_app.project_id)
 
+# Check the all status of competition to return multiple lists of users and topic which include the 24hrs email notification,
+# 30mins notification, result release notification.
 def checkCompTime():
     compRef = db.reference('Competitions')
     compSnapshot = compRef.get() #dictionary
@@ -88,7 +91,7 @@ def checkCompTime():
 
     return notificationList, emailList, resultNotificationList
 
-
+# Check whether given compeititon time is within 30 mins
 def checkNotification(compDatetime, nowDatetime):
     halfhour = timedelta(minutes=30)
     zeroHour = timedelta(minutes=0)
@@ -99,7 +102,7 @@ def checkNotification(compDatetime, nowDatetime):
         return True
     return False
 
-
+# Check given competition start time and end time to return the status of competition
 def checkTimePeriod(compDatetime, compEndDatetime, givenTime):
     if givenTime < compDatetime:
         return "0"
@@ -109,7 +112,7 @@ def checkTimePeriod(compDatetime, compEndDatetime, givenTime):
         return "2"
     return None
 
-
+# Check whether given competition time is within 24hrs
 def checkEmail(compDatetime, nowDatetime):
     oneday = timedelta(days=1)
     zeroday = timedelta(days=0)
@@ -120,14 +123,17 @@ def checkEmail(compDatetime, nowDatetime):
         return True
     return False
 
+# Loop the 30mins notification list to invoke function of Sending the notification by given list of topic for 30mins notification
 def processNotification(topicList):
     for topic in topicList:
         sendCompNotification(topic)
 
+# Loop the result release list to invoke function of sending the notification by list of topic for result release
 def processResultNotification(topicList):
     for topic in topicList:
         sendCompResultNotification(topic)
 
+# Make the 24hrs notifcation email and invoke the sending email function
 def processEmail(emailList):
     for compArray in emailList:
         compId = compArray[0]
@@ -149,7 +155,7 @@ def processEmail(emailList):
                 sendEmail(useremail, username, compId, compName, messageBody)
                 thisUserCompEmailRef.set("1")
 
-
+# Sending notifiaction of competition start in 30mins by given infomation of topic
 def sendCompNotification(topicInfo):
     compId = topicInfo[0]
     compName = topicInfo[1]
@@ -167,6 +173,7 @@ def sendCompNotification(topicInfo):
 
     updateNotificationStatus(compId)
 
+# Sending notification of competition result by given infomation of topic
 def sendCompResultNotification(topicInfo):
     compId = topicInfo[0]
     compName = topicInfo[1]
@@ -185,25 +192,28 @@ def sendCompResultNotification(topicInfo):
 
     updateResultNotificationStatus(compId)
 
+# update the tag of 30mins notification has been sent
 def updateNotificationStatus(compId) :
     currentCompRef = db.reference('Competitions/'+compId)
     currentCompRef.update({
         'ifNoticed': 1
     })
 
+# update the tag of result notification has been sent
 def updateResultNotificationStatus(compId) :
     currentCompRef = db.reference('Competitions/'+compId)
     currentCompRef.update({
         'ifResultNoticed': 1
     })
 
+# update the tag of 24hrs notification email has been sent
 def updateNEmailStatus(compId) :
     currentCompRef = db.reference('Competitions/'+compId)
     currentCompRef.update({
         'ifEmailed': 1
     })
 
-#TODO: remember to change user Email as sender
+# Composing the email to send
 def sendEmail(userEmail, username, compId, compName, messageBody):
     smtp_server = 'smtp.gmail.com'
     port = 465
@@ -221,6 +231,7 @@ def sendEmail(userEmail, username, compId, compName, messageBody):
         server.send_message(message)
         print("Success Sending Email to user: " + username + " for competition: " + compName + " (" + compId + ")")
 
+# Structuring the email by given content
 def create_email_message(from_address, to_address, subject, body):
     msg = EmailMessage()
     msg['From'] = from_address
@@ -229,12 +240,14 @@ def create_email_message(from_address, to_address, subject, body):
     msg.set_content(body)
     return msg
 
+# update the status of competition
 def updateCompState(compId, status) :
     currentCompRef = db.reference('Competitions/'+compId)
     currentCompRef.update({
         'cStatus': status
     })
 
+# main function
 if __name__ == '__main__':
     initialAuth()
     # Sychonize comp attended user and user registered comp
