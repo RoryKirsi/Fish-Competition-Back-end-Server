@@ -15,3 +15,8 @@ The Ansible jobs are including \
 ●	setupServerDocker: build the Docker Image of the Back-end Server service by Dockerfile, and push to the Docker repository. (The Server Script: test.py is created by Python3)\
 ●	setupWebDocker: build the Docker Image of the Web service by Dockerfile, and push to the Docker repository. (The Web stuff is copied from Web Repository: https://github.com/xuqinzju/FishingWeb)\
 
+Once the Ansible jobs are finished, Docker and Docker Image are ready. Log in to the Cloud server. To Start the Back-end Server and Web by following command.\
+Back-end Server: docker run --name="fishing_app_server" -d kirsi/fishing_app_server \
+Web: docker run --name="fishing_app_web" -p 80:80 -d kirsi/fishing_app_web \
+
+Finally, browsing the cloud server IP address on browser, the Web is able to use.
