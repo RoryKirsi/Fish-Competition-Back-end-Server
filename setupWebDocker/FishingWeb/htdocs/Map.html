@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Competition Map</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <script src="https://www.gstatic.com/firebasejs/5.10.0/firebase.js"></script>
+    <script src="../js/fireBase.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyACSvwEYu8nhcsb3tubvu8NOObIbBQ4gB8"></script>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/png" href="../image/map.png">
+    <style>
+        #map {
+            height: 100%;
+        }
+
+        html,
+        body {
+            height: 100%;
+            /* height: 80%; */
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    <script>
+        var database = firebase.database();
+        // var ref = database.ref('Competitions');
+        var ref = database.ref();
+        console.log("Access the database!");
+        ref.on("value", gotData, errData);
+        var key = getQueryString("id");
+        console.log(key);
+
+        function gotData(data) {
+            // console.log(data.val());
+            var competitions = data.child('Competitions').val();
+            var keys = Object.keys(competitions);
+            var geodata = competitions[key].geo_map;
+            var attendants = competitions[key].attendants;
+
+            var status = competitions[key].cStatus;
+            console.log(typeof geodata);
+            var lat = Number(geodata.split(",")[0]);
+            var lng = Number(geodata.split(",")[1]);
+            var rad = Number(geodata.split(',')[2])*1000;
+
+            //set parameters for the map
+            var map;
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: {
+                    lat: lat,
+                    lng: lng
+                },
+                // center: {lat:-37.817074, lng:145.124479},                
+                zoom: 15,
+                maxZoom: 17,
+                minZoom: 13,
+                scaleControl: true
+            });
+
+            //set parameters for the competition area
+            var compCircle = {
+                strokeColor: "#f1c40f",
+                strokeOpacity: 0.8,
+                strokeWeight: 2,
+                fillColor: "#f1c40f",
+                fillOpacity: 0.35,
+                map: map,
+                center: new google.maps.LatLng(lat, lng),
+                radius: rad // in meters  
+            };
+            drawCircle = new google.maps.Circle(compCircle);
+
+            //display the markers in the competition time
+            if (status == 1) {
+                var refDatabase = firebase.database().ref();
+                refDatabase.once("value").then(function (snapshot) {
+                    for (uid in attendants) {
+                        var refUser = snapshot.child('Users');
+                        var refGPS = snapshot.child('Live_GPS');
+                        var refPost = snapshot.child('Posts/Competitions/' + key);
+
+                        var latitude = refGPS.child(attendants[uid]).child('latitude').val();
+                        var longitude = refGPS.child(attendants[uid]).child('longitude').val();
+                        var name = refUser.child(attendants[uid]).child('displayName').val();
+                        console.log('name: ' + name + ' latitude: ' + latitude + ' longitude: ' + longitude);
+
+                        var posts = refPost.val();
+                        console.log('posts: ' + posts);
+                        var url = '#';
+                        if (posts != null) {
+                            var keys = Object.keys(posts);
+                            // console.log('keys: '+keys);
+                            for (var i = keys.length - 1; i >= 0; i--) {
+                                // console.log(keys[i].split("_")[1]);
+                                if (keys[i].split("_")[1] ==
+                                    attendants[uid]) {
+                                    url = posts[keys[i]].oriDownloadUrl;
+                                    break;
+                                }
+                            }
+                        }
+                        console.log('url:' + url);
+
+                        var marker = new google.maps.Marker({
+                            map: map,
+                            position: new google.maps.LatLng(Number(latitude), Number(longitude)),
+                        });
+                        attachMessage(marker, url, name);
+                    }
+                })
+            }
+        }
+
+        function attachMessage(marker, url, name) {
+            if (url == '#') {
+                var infowindow = new google.maps.InfoWindow({
+                    content: name
+                });
+            } else {
+                var infowindow = new google.maps.InfoWindow({
+                    content: "<img src=" + url + " width=200px>" + "<br>" + 'Photo by: '+name
+                });
+            }
+            marker.addListener('click', function () {
+                infowindow.open(marker.get('map'), marker);
+            });
+        }
+
+        function errData(err) {
+            console.log('Error!');
+            console.log(err);
+        }
+
+        function getQueryString(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+            var r = window.location.search.substr(1).match(reg);
+            if (r != null) return unescape(r[2]);
+            return null;
+        }
+    </script>
+
+</body>
+
+</html>

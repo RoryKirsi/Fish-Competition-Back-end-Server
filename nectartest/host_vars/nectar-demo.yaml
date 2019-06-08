@@ -1,0 +1,69 @@
+# Common_vars
+availability_zone: melbourne-qh2
+
+
+# Security group
+security_groups:
+  - name: ssh
+    description: "Allows SSH (port 22) from world"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 80
+    port_range_max: 80
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 9584
+    port_range_max: 9584
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 5984
+    port_range_max: 5984
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 5986
+    port_range_max: 5986
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 4369
+    port_range_max: 4369
+    remote_ip_prefix: 0.0.0.0/0
+  - name: couchdb
+    description: "use for couchdb cluster"
+    protocol: tcp
+    port_range_min: 9100
+    port_range_max: 9200
+    remote_ip_prefix: 0.0.0.0/0
+
+# Security group
+internal_security_groups:
+  - name: internal
+    description: internal group connect use
+    protocol: icmp
+    remote_group: internal
+  - name: internal
+    description: internal group connect use
+    protocol: tcp
+    remote_group: internal
+  - name: internal
+    description: internal group connect use
+    protocol: udp
+    remote_group: internal
+    
+# Instance 
+instance_name: demo
+instance_image: 394a1b97-a8d3-4593-aab0-8156f0dfeeca
+instance_key_name: cloud
+instance_flavor: m3.small
