@@ -1,6 +1,7 @@
 # Fish-Competition-Back-end-Server
 
 The Cloud Server is running now. http://115.146.86.6/ can see the Web.\
+
 Reproduce User Guide:\
 There are four Ansible folders are needed to execute the corresponded once in each folder. Table T1 shows the corresponded command and running order. In addition, after created the cloud server by ‘nectartest’, the IP address of the cloud server is needed to replace the ‘hosts’ file in ‘setupServerEnv’ folder.
 
