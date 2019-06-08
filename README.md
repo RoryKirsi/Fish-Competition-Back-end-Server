@@ -2,7 +2,7 @@
 
 There are four Ansible folders are needed to execute the corresponded once in each folder. Table T1 shows the corresponded command and running order. In addition, after created the cloud server by ‘nectartest’, the IP address of the cloud server is needed to replace the ‘hosts’ file in ‘setupServerEnv’ folder.
 
-Table 1 – Ansible commands and running order \n
+Table 1 – Ansible commands and running order /n
 Sequence,	Ansible Folder,	Command#1,	Command#2
 #1,	nectartest,	'. ./run-nectar.sh'	
 #2,	setupServerEnv,	'. ./run-serverevn.sh'
